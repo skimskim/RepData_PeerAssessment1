@@ -2,7 +2,8 @@
 # of a Randomly-Selected Subject 
 # from October 2012 to November 2012 
 
-```{r Getdata, results="hide", message=FALSE}
+
+```r
 ## Checks local directory for dataset. If it doesn't exist locally, 
 ## downloads it and stores it directory movement_data from working directory.
 url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
@@ -21,7 +22,8 @@ library(lattice)
 ```
 
 ## What is mean total number of steps taken per day?
-```{r Dailysteps}
+
+```r
 ## Sums the number of steps by date.
 ## Calculates the number of days where no data was recorded 
 ## along with the mean and the median of the number of daily steps.
@@ -40,13 +42,16 @@ hist(data.daily$daily.steps,
      col = "purple")
 ```
 
-There were `r days.NA` days when absolutely no data was collected.
+![plot of chunk Dailysteps](figure/Dailysteps-1.png) 
+
+There were 8 days when absolutely no data was collected.
 
 Exluding the days with no data collection, the mean of total number of daily steps
-taken was `r mean.daily` while the median was `r median.daily`.
+taken was 10766 while the median was 10765.
 
 ## What is the average daily activity pattern?
-```{r 5minavg, results='hold'}
+
+```r
 ## Calculates the the average number of steps taken sampled at 5 minute period
 ## over the 2 months.
 data.5minavg <- data %>%
@@ -62,7 +67,11 @@ plot(data.5minavg$interval, data.5minavg$avg.5min,
      main = "Time Series of Average Number of Steps in Five Minute Increments \n from a randomly selected subject from Oct 2012 to Nov 2012",
      type='l')
 points(data.5minavg$interval, data.5minavg$avg.5min, pch='*')
+```
 
+![plot of chunk 5minavg](figure/5minavg-1.png) 
+
+```r
 ## Calculates the 5 minute inveral with the maximum of the average number
 ## of steps as well as the maximum number of average steps.
 max.steps <- arrange(data.5minavg, desc(avg.5min))[1,]
@@ -71,10 +80,11 @@ max.steps.time1 <- paste(max.time$hour, max.time$min, sep=":")
 max.steps.time2 <- paste(max.time$hour, max.time$min+5, sep=":")
 ```
 
-The five minute interval with the maximum number of averaged steps occur from `r max.steps.time1` to `r max.steps.time2`. During this 5 minute interval, the average number of steps in the two months is `r round(max.steps[1,2],0)`.
+The five minute interval with the maximum number of averaged steps occur from 8:35 to 8:40. During this 5 minute interval, the average number of steps in the two months is 206.
 
 ## Imputing missing values
-```{r imputed.data}
+
+```r
 ## Extracts from the data where NA occurs.
 num.NA <- sum(is.na(data$steps))
 data.NA <- filter(data, is.na(steps))
@@ -106,12 +116,14 @@ hist(data.imputed.dailytotal$daily.steps,
      main = "Frequency of Number of Daily Steps from \n a randomly-selected subject from Oct 2012 to Nov 2012* NA Imputed",
      xlab = "Number Daily Steps \n *NA data imputed with mean number of steps taken in the given 5 minute interval.",
      col = "red")
-
 ```
 
-In the data set, there are `r num.NA` NA's. 
+![plot of chunk imputed.data](figure/imputed.data-1.png) 
 
-```{r table}
+In the data set, there are 2304 NA's. 
+
+
+```r
 ## Table of mean & median of the dataset where NA's are removed 
 ## and NA's are imputed with 5minute interval mean.
 TB <- matrix(c(mean.daily, median.daily, mean.imputed, median.imputed),2,2)
@@ -119,14 +131,21 @@ rownames(TB) <- c("Mean", "Median")
 colnames(TB) <- c("NA removed-Data", "Imputed with 5min-avg-Data")
 
 knitr::kable(TB)
-
 ```
+
+
+
+|       |NA removed-Data |Imputed with 5min-avg-Data |
+|:------|:---------------|:--------------------------|
+|Mean   |10766           |10766                      |
+|Median |10765           |10766                      |
 
 
 As a comparison, we imputed all NA values with its 5-minute interval average for its given time period. As shown on the table, the mean and median did not change significantly whether NA value was removed or was imputed with the 5-minute interval average.
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r weekday}
+
+```r
 data$weekday <- weekdays(as.Date(data$date, format="%Y-%m-%d"))
 data <- data %>%
         mutate(Wkend = ifelse(weekday == "Saturday"| weekday == "Sunday",
@@ -149,5 +168,7 @@ plot.wk <- xyplot(mean.steps ~ interval | Wkend,
 
 print(plot.wk)
 ```
+
+![plot of chunk weekday](figure/weekday-1.png) 
 
 There are more movements in the morning time on the weekdays compared to the same time period on the weekends. Also, the personal movements begin earlier in the day on weekdays compared to the weekends. The peak activity on weekends terminates later in the evening compared to the weekdays. There's also bigger variation in the personal activity on the weekends than weekdays.
